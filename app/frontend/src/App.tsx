@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Mic, MicOff } from "lucide-react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { Mic, MicOff, Settings as SettingsIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -14,11 +15,13 @@ import useAudioPlayer from "@/hooks/useAudioPlayer";
 import { GroundingFile, ToolResult } from "./types";
 
 import logo from "./assets/logo.svg";
+import SettingsPage from "./pages/settings";
 
-function App() {
+function VoiceAssistant() {
     const [isRecording, setIsRecording] = useState(false);
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
+    const navigate = useNavigate();
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
         onWebSocketOpen: () => console.log("WebSocket connection opened"),
@@ -68,6 +71,17 @@ function App() {
             <div className="p-4 sm:absolute sm:left-4 sm:top-4">
                 <img src={logo} alt="Azure logo" className="h-16 w-16" />
             </div>
+            <div className="absolute right-4 top-4">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate("/settings")}
+                    className="rounded-full"
+                    aria-label="Settings"
+                >
+                    <SettingsIcon className="h-6 w-6" />
+                </Button>
+            </div>
             <main className="flex flex-grow flex-col items-center justify-center">
                 <h1 className="mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-4xl font-bold text-transparent md:text-7xl">
                     {t("app.title")}
@@ -100,6 +114,17 @@ function App() {
 
             <GroundingFileView groundingFile={selectedFile} onClosed={() => setSelectedFile(null)} />
         </div>
+    );
+}
+
+function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<VoiceAssistant />} />
+                <Route path="/settings" element={<SettingsPage />} />
+            </Routes>
+        </BrowserRouter>
     );
 }
 
