@@ -23,7 +23,7 @@ function VoiceAssistant() {
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
 
-    const { settings, updateSettings, isLoaded: settingsLoaded } = useSettings();
+    const { settings, isLoaded: settingsLoaded } = useSettings();
     const navigate = useNavigate();
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
