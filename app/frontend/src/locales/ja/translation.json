@@ -17,5 +17,13 @@
     "groundingFiles": {
         "title": "グラウンディング ファイル",
         "description": "回答をグラウンディングするために使用されるファイル。"
+    },
+    "settings": {
+        "title": "設定",
+        "description": "音声アシスタントの設定を構成します",
+        "voiceLabel": "音声",
+        "save": "保存",
+        "cancel": "キャンセル",
+        "conversationActiveWarning": "会話がアクティブな間は設定を変更できません。まず会話を停止してください。"
     }
 }

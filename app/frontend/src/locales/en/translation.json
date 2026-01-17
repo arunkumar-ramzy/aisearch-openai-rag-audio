@@ -17,5 +17,13 @@
     "groundingFiles": {
         "title": "Grounding files",
         "description": "Files used to ground the answers."
+    },
+    "settings": {
+        "title": "Settings",
+        "description": "Configure your voice assistant preferences",
+        "voiceLabel": "Voice",
+        "save": "Save",
+        "cancel": "Cancel",
+        "conversationActiveWarning": "Settings cannot be changed while a conversation is active. Please stop the conversation first."
     }
 }

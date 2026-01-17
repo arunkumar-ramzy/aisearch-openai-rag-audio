@@ -13,6 +13,7 @@ import {
 } from "@/types";
 
 type Parameters = {
+    voice?: string;
     useDirectAoaiApi?: boolean; // If true, the middle tier will be skipped and the AOAI ws API will be called directly
     aoaiEndpointOverride?: string;
     aoaiApiKeyOverride?: string;
@@ -34,6 +35,7 @@ type Parameters = {
 };
 
 export default function useRealTime({
+    voice,
     useDirectAoaiApi,
     aoaiEndpointOverride,
     aoaiApiKeyOverride,
@@ -72,6 +74,10 @@ export default function useRealTime({
                 }
             }
         };
+
+        if (voice) {
+            command.session.voice = voice;
+        }
 
         if (enableInputAudioTranscription) {
             command.session.input_audio_transcription = {

@@ -17,5 +17,13 @@
     "groundingFiles": {
         "title": "Archivos de fundamentación",
         "description": "Archivos utilizados para fundamentar las respuestas."
+    },
+    "settings": {
+        "title": "Configuración",
+        "description": "Configura las preferencias de tu asistente de voz",
+        "voiceLabel": "Voz",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "conversationActiveWarning": "No se puede cambiar la configuración mientras hay una conversación activa. Detén la conversación primero."
     }
 }

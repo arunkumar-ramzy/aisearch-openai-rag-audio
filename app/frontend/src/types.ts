@@ -19,6 +19,7 @@ export type SessionUpdateCommand = {
         input_audio_transcription?: {
             model: "whisper-1";
         };
+        voice?: string;
     };
 };
 

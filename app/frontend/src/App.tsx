@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Settings as SettingsIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { GroundingFiles } from "@/components/ui/grounding-files";
 import GroundingFileView from "@/components/ui/grounding-file-view";
 import StatusMessage from "@/components/ui/status-message";
+import { Settings } from "@/components/ui/settings";
 
 import useRealTime from "@/hooks/useRealtime";
 import useAudioRecorder from "@/hooks/useAudioRecorder";
 import useAudioPlayer from "@/hooks/useAudioPlayer";
+import { useSettings } from "@/hooks/useSettings";
 
 import { GroundingFile, ToolResult } from "./types";
 
@@ -19,8 +21,12 @@ function App() {
     const [isRecording, setIsRecording] = useState(false);
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    const { settings, updateSettings, isLoaded: settingsLoaded } = useSettings();
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
+        voice: settingsLoaded ? settings.voice : undefined,
         onWebSocketOpen: () => console.log("WebSocket connection opened"),
         onWebSocketClose: () => console.log("WebSocket connection closed"),
         onWebSocketError: event => console.error("WebSocket error:", event),
@@ -63,10 +69,25 @@ function App() {
 
     const { t } = useTranslation();
 
+    const handleSaveSettings = (voice: string) => {
+        updateSettings({ voice });
+    };
+
     return (
         <div className="flex min-h-screen flex-col bg-gray-100 text-gray-900">
             <div className="p-4 sm:absolute sm:left-4 sm:top-4">
                 <img src={logo} alt="Azure logo" className="h-16 w-16" />
+            </div>
+            <div className="p-4 sm:absolute sm:right-4 sm:top-4">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setIsSettingsOpen(true)}
+                    aria-label={t("settings.title")}
+                    className="h-10 w-10"
+                >
+                    <SettingsIcon className="h-5 w-5" />
+                </Button>
             </div>
             <main className="flex flex-grow flex-col items-center justify-center">
                 <h1 className="mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-4xl font-bold text-transparent md:text-7xl">
@@ -99,6 +120,14 @@ function App() {
             </footer>
 
             <GroundingFileView groundingFile={selectedFile} onClosed={() => setSelectedFile(null)} />
+
+            <Settings
+                isOpen={isSettingsOpen}
+                currentVoice={settings.voice}
+                isConversationActive={isRecording}
+                onSave={handleSaveSettings}
+                onClose={() => setIsSettingsOpen(false)}
+            />
         </div>
     );
 }

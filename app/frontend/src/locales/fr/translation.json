@@ -17,5 +17,13 @@
     "groundingFiles": {
         "title": "Fichiers d'ancrage",
         "description": "Fichiers utilisés pour ancrer les réponses."
+    },
+    "settings": {
+        "title": "Paramètres",
+        "description": "Configurez les préférences de votre assistant vocal",
+        "voiceLabel": "Voix",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "conversationActiveWarning": "Les paramètres ne peuvent pas être modifiés pendant une conversation. Arrêtez d'abord la conversation."
     }
 }
