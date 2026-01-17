@@ -6,6 +6,8 @@ This file contains instructions for developers and automated coding agents worki
 
 VoiceRAG is an application pattern demonstrating RAG (Retrieval Augmented Generation) with voice interfaces using Azure AI Search and the GPT-4o Realtime API for Audio. The application enables voice-based interactions with a knowledge base, with audio input processed through the browser and sent to Azure OpenAI's real-time API for responses.
 
+**RAG is optional**: The application can run as a standalone voice assistant without Azure AI Search. When Azure Search environment variables (`AZURE_SEARCH_ENDPOINT` and `AZURE_SEARCH_INDEX`) are not configured, the app operates in voice assistant mode without RAG capabilities.
+
 **Main technologies:**
 - **Backend**: Python 3.11+ with aiohttp web framework
 - **Frontend**: React with TypeScript, built with Vite
@@ -88,15 +90,21 @@ Install the required tools:
    ```
 
 4. **Configure environment variables:**
-   
+
    After deploying with `azd up`, the `.env` file is automatically created at `app/backend/.env`.
-   
+
    If running locally without azd deployment, create `app/backend/.env` with:
+
+   **Required (minimum for voice assistant without RAG):**
    ```
    AZURE_TENANT_ID=<your-tenant-id>
    AZURE_OPENAI_ENDPOINT=https://<your-openai-service>.openai.azure.com
    AZURE_OPENAI_REALTIME_DEPLOYMENT=gpt-4o-realtime-preview
    AZURE_OPENAI_REALTIME_VOICE_CHOICE=alloy
+   ```
+
+   **Optional (for RAG with knowledge base):**
+   ```
    AZURE_SEARCH_ENDPOINT=https://<your-search-service>.search.windows.net
    AZURE_SEARCH_INDEX=<your-index-name>
    AZURE_SEARCH_SEMANTIC_CONFIGURATION=default
@@ -311,10 +319,18 @@ npm run format
 - `AZURE_OPENAI_ENDPOINT` - Azure OpenAI service endpoint
 - `AZURE_OPENAI_REALTIME_DEPLOYMENT` - Deployment name for GPT-4o realtime
 - `AZURE_OPENAI_REALTIME_VOICE_CHOICE` - Voice selection (alloy, echo, shimmer)
-- `AZURE_SEARCH_ENDPOINT` - Azure AI Search endpoint
-- `AZURE_SEARCH_INDEX` - Search index name
 
-**Optional environment variables:**
+**Optional for RAG mode:**
+- `AZURE_SEARCH_ENDPOINT` - Azure AI Search endpoint (enables RAG when set)
+- `AZURE_SEARCH_INDEX` - Search index name (enables RAG when set)
+- `AZURE_SEARCH_SEMANTIC_CONFIGURATION` - Semantic configuration name
+- `AZURE_SEARCH_IDENTIFIER_FIELD` - Identifier field name (default: chunk_id)
+- `AZURE_SEARCH_CONTENT_FIELD` - Content field name (default: chunk)
+- `AZURE_SEARCH_TITLE_FIELD` - Title field name (default: title)
+- `AZURE_SEARCH_EMBEDDING_FIELD` - Embedding field name (default: text_vector)
+- `AZURE_SEARCH_USE_VECTOR_QUERY` - Enable vector query (default: true)
+
+**Optional authentication:**
 - `AZURE_OPENAI_API_KEY` - Use key auth instead of Entra ID
 - `AZURE_SEARCH_API_KEY` - Use key auth instead of Entra ID
 - `RUNNING_IN_PRODUCTION` - Disable .env file loading when set
