@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Mic, MicOff, Settings as SettingsIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -6,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { GroundingFiles } from "@/components/ui/grounding-files";
 import GroundingFileView from "@/components/ui/grounding-file-view";
 import StatusMessage from "@/components/ui/status-message";
-import { Settings } from "@/components/ui/settings";
 
 import useRealTime from "@/hooks/useRealtime";
 import useAudioRecorder from "@/hooks/useAudioRecorder";
@@ -16,14 +16,15 @@ import { useSettings } from "@/hooks/useSettings";
 import { GroundingFile, ToolResult } from "./types";
 
 import logo from "./assets/logo.svg";
+import SettingsPage from "./pages/settings";
 
-function App() {
+function VoiceAssistant() {
     const [isRecording, setIsRecording] = useState(false);
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const { settings, updateSettings, isLoaded: settingsLoaded } = useSettings();
+    const navigate = useNavigate();
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
         voice: settingsLoaded ? settings.voice : undefined,
@@ -69,10 +70,6 @@ function App() {
 
     const { t } = useTranslation();
 
-    const handleSaveSettings = (voice: string) => {
-        updateSettings({ voice });
-    };
-
     return (
         <div className="flex min-h-screen flex-col bg-gray-100 text-gray-900">
             <div className="p-4 sm:absolute sm:left-4 sm:top-4">
@@ -82,7 +79,7 @@ function App() {
                 <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setIsSettingsOpen(true)}
+                    onClick={() => navigate("/settings")}
                     aria-label={t("settings.title")}
                     className="h-10 w-10"
                 >
@@ -120,15 +117,18 @@ function App() {
             </footer>
 
             <GroundingFileView groundingFile={selectedFile} onClosed={() => setSelectedFile(null)} />
-
-            <Settings
-                isOpen={isSettingsOpen}
-                currentVoice={settings.voice}
-                isConversationActive={isRecording}
-                onSave={handleSaveSettings}
-                onClose={() => setIsSettingsOpen(false)}
-            />
         </div>
+    );
+}
+
+function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<VoiceAssistant />} />
+                <Route path="/settings" element={<SettingsPage />} />
+            </Routes>
+        </BrowserRouter>
     );
 }
 

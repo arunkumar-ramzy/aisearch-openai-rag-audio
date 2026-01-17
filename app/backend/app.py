@@ -8,6 +8,7 @@ from azure.identity import AzureDeveloperCliCredential, DefaultAzureCredential
 from dotenv import load_dotenv
 
 from rtmt import RTMiddleTier
+from settings import get_settings
 
 # RAG tools are optional - only import if Azure Search is configured
 try:
@@ -55,15 +56,8 @@ async def create_app():
 
     if rag_enabled and RAG_AVAILABLE:
         logger.info("Azure Search is configured - RAG mode enabled")
-        rtmt.system_message = """
-            You are a helpful assistant. Only answer questions based on information you searched in the knowledge base, accessible with the 'search' tool.
-            The user is listening to answers with audio, so it's *super* important that answers are as short as possible, a single sentence if at all possible.
-            Never read file names or source names or keys out loud.
-            Always use the following step-by-step instructions to respond:
-            1. Always use the 'search' tool to check the knowledge base before answering a question.
-            2. Always use the 'report_grounding' tool to report the source of information from the knowledge base.
-            3. Produce an answer that's as short as possible. If the answer isn't in the knowledge base, say you don't know.
-        """.strip()
+        settings = get_settings()
+        rtmt.system_message = settings.rag_system_message
 
         attach_rag_tools(rtmt,
             credentials=search_credential,
@@ -78,13 +72,41 @@ async def create_app():
             )
     else:
         logger.info("Azure Search is not configured - voice assistant mode without RAG")
-        rtmt.system_message = """
-            You are a helpful voice assistant.
-            The user is listening to answers with audio, so it's *super* important that answers are as short as possible, a single sentence if at all possible.
-            Provide helpful, friendly responses to the user's questions and requests.
-        """.strip()
+        settings = get_settings()
+        rtmt.system_message = settings.voice_assistant_system_message
 
     rtmt.attach_to_app(app, "/realtime")
+
+    # REST API endpoints for settings
+    async def get_settings_handler(request: web.Request) -> web.Response:
+        """Get current settings."""
+        settings = get_settings()
+        return web.json_response(settings.to_dict())
+
+    async def update_settings_handler(request: web.Request) -> web.Response:
+        """Update settings."""
+        try:
+            data = await request.json()
+            settings = get_settings()
+            settings.update_from_dict(data)
+            settings.save()
+
+            # Update the rtmt system message if the system message was changed
+            rag_enabled = (
+                os.environ.get("AZURE_SEARCH_ENDPOINT") and
+                os.environ.get("AZURE_SEARCH_INDEX")
+            )
+            rtmt.system_message = settings.get_system_message(rag_enabled and RAG_AVAILABLE)
+
+            return web.json_response(settings.to_dict())
+        except Exception as e:
+            logger.error("Failed to update settings: %s", e)
+            return web.json_response({"error": str(e)}, status=400)
+
+    app.add_routes([
+        web.get('/api/settings', get_settings_handler),
+        web.post('/api/settings', update_settings_handler)
+    ])
 
     current_directory = Path(__file__).parent
     app.add_routes([web.get('/', lambda _: web.FileResponse(current_directory / 'static/index.html'))])
